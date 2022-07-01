@@ -10,6 +10,13 @@ var jobRouter = require('./routes/job.route');
 
 var app = express();
 
+try {
+    const syncDB = db.sequelize.sync()
+    console.log("Synced db.");
+} catch (err) {
+    console.log("Failed to sync db: " + err.message);
+}
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

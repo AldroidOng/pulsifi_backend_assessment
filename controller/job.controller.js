@@ -3,36 +3,31 @@ const db = require("../models");
 const Job = db.job;
 const Op = db.Sequelize.Op;
 
-// job_title
-// job_location
-// job_description
-// date
-// job_status
-
 // Create and Save a new Job
 exports.create = (req, res) => {
-    console.log(req.body)
     // Validate request
-    if (!req.body.job_title || !req.body.job_location || !req.body.job_description) {
+    if (!req.body.jobTitle || !req.body.jobLocation || !req.body.jobDescription) {
         res.status(400).send({
-            message: "Content must contain job_title, job_location, job_description!"
+            message: "Content must contain jobTitle, jobLocation, jobDescription!"
         });
         return;
     }
 
+    const { jobTitle, jobLocation, jobDescription } = req.body
+
     // Create a Job
     const job = {
-        job_title: req.body.job_title,
-        job_location: req.body.job_location,
-        job_description: req.body.job_description,
+        jobTitle,
+        jobLocation,
+        jobDescription,
         date: new Date(),
-        job_status: jobStatus.IN_REVIEW
+        jobStatus: jobStatus.IN_REVIEW
     };
 
     // Save Job in the database
     Job.create(job)
         .then(data => {
-            res.send(data);
+            res.status(201).send(data);
         })
         .catch(err => {
             res.status(500).send({
@@ -84,7 +79,7 @@ exports.findOne = (req, res) => {
 exports.updateStatus = (req, res) => {
     const id = req.params.id;
 
-    Job.update({ job_status: req.body.job_status }, {
+    Job.update({ jobStatus: req.body.jobStatus }, {
         where: { id: id }
     })
         .then(num => {
@@ -93,8 +88,8 @@ exports.updateStatus = (req, res) => {
                     message: "Job was updated successfully."
                 });
             } else {
-                res.send({
-                    message: `Cannot update Job with id=${id}. Maybe Job was not found or req.body.job_status is empty!`
+                res.status(400).send({
+                    message: `Cannot update Job with id=${id}. Maybe Job was not found or req.body.jobStatus is empty!`
                 });
             }
         })
@@ -118,7 +113,7 @@ exports.delete = (req, res) => {
                     message: "Job was deleted successfully!"
                 });
             } else {
-                res.send({
+                res.status(404).send({
                     message: `Cannot delete Job with id=${id}. Maybe Job was not found!`
                 });
             }
@@ -149,7 +144,7 @@ exports.deleteAll = (req, res) => {
 
 // find all Jobs with Status In-Review
 exports.findAllJobsInReview = (req, res) => {
-    Job.findAll({ where: { job_status: jobStatus.IN_REVIEW } })
+    Job.findAll({ where: { jobStatus: jobStatus.IN_REVIEW } })
         .then(data => {
             res.send(data);
         })
@@ -163,7 +158,7 @@ exports.findAllJobsInReview = (req, res) => {
 
 // find all Jobs with Status Posted
 exports.findAllJobsPosted = (req, res) => {
-    Job.findAll({ where: { job_status: jobStatus.POSTED } })
+    Job.findAll({ where: { jobStatus: jobStatus.POSTED } })
         .then(data => {
             res.send(data);
         })
